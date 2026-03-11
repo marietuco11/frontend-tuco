@@ -1,0 +1,68 @@
+.register-page{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#f3f6fb;
+}
+
+.register-container{
+  width:950px;
+  height:560px;
+  display:flex;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 20px 40px rgba(0,0,0,0.15);
+}
+
+.register-form{
+  width:50%;
+  background:white;
+  padding:50px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  justify-content:center;
+}
+
+.logo{
+  width:170px;
+    margin-top:10px;
+}
+
+h2{
+  color:#1E5BB8;
+  margin-bottom:10px;
+}
+
+input{
+  padding:12px;
+  border-radius:6px;
+  border:1px solid #ddd;
+}
+
+input:focus{
+  border-color:#1E5BB8;
+  outline:none;
+}
+
+.register-btn{
+  background:#16a34a;
+  color:white;
+  padding:12px;
+  border:none;
+  border-radius:6px;
+  font-weight:600;
+}
+
+.google-btn{
+  background:#4285F4;
+  color:white;
+  padding:12px;
+  border:none;
+  border-radius:6px;
+}
+
+.register-image{
+  width:50%;
+background:url("/assets/images/login.jpg") center/cover no-repeat;}
