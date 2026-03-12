@@ -1,0 +1,46 @@
+<div class="login-page">
+  <div class="login-container">
+    <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <img src="assets/images/logo.png" class="logo" alt="EventConnect">
+
+      <h2>Iniciar sesión</h2>
+
+      <input
+        type="email"
+        placeholder="Correo electrónico"
+        formControlName="email"
+      >
+
+      <small class="error" *ngIf="email?.touched && email?.invalid">
+        Introduce un correo válido
+      </small>
+
+      <input
+        type="password"
+        placeholder="Contraseña"
+        formControlName="password"
+      >
+
+      <small class="error" *ngIf="password?.touched && password?.invalid">
+        La contraseña es obligatoria
+      </small>
+
+      <button type="submit" class="login-btn" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Entrando...' : 'Entrar' }}
+      </button>
+
+      <button type="button" class="google-btn" (click)="loginWithGoogle()">
+        Continuar con Google
+      </button>
+
+      <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <p>
+        ¿No tienes cuenta?
+        <a routerLink="/register">Crear cuenta</a>
+      </p>
+    </form>
+
+    <div class="login-image"></div>
+  </div>
+</div>

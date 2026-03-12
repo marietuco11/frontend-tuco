@@ -1,0 +1,70 @@
+<div class="register-page">
+  <div class="register-container">
+    <form class="register-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <img src="assets/images/logo.png" class="logo" alt="EventConnect">
+
+      <h2>Crear cuenta</h2>
+
+      <input
+        placeholder="Nombre y apellidos"
+        formControlName="name"
+      >
+
+      <small class="error" *ngIf="name?.touched && name?.invalid">
+        El nombre es obligatorio
+      </small>
+
+      <input
+        placeholder="Username"
+        formControlName="username"
+      >
+
+      <input
+        type="email"
+        placeholder="Correo electrónico"
+        formControlName="email"
+      >
+
+      <small class="error" *ngIf="email?.touched && email?.invalid">
+        Introduce un correo válido
+      </small>
+
+      <input
+        type="password"
+        placeholder="Contraseña"
+        formControlName="password"
+      >
+
+      <small class="error" *ngIf="password?.touched && password?.invalid">
+        La contraseña debe tener al menos 6 caracteres
+      </small>
+
+      <input
+        type="password"
+        placeholder="Confirmar contraseña"
+        formControlName="confirmPassword"
+      >
+
+      <small class="error" *ngIf="confirmPassword?.touched && registerForm.hasError('passwordMismatch')">
+        Las contraseñas no coinciden
+      </small>
+
+      <button type="submit" class="register-btn" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Registrando...' : 'Registrarse' }}
+      </button>
+
+      <button type="button" class="google-btn" (click)="registerWithGoogle()">
+        Continuar con Google
+      </button>
+
+      <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <p>
+        ¿Ya tienes cuenta?
+        <a routerLink="/login">Iniciar sesión</a>
+      </p>
+    </form>
+
+    <div class="register-image"></div>
+  </div>
+</div>
