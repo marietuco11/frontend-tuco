@@ -12,7 +12,7 @@
 
     <p class="description">{{ event?.description | stripHtml }}...</p>
 
-    <a>Ver más >></a>
+    <a [routerLink]="['/events', event?._id]">Ver más →</a>
 
   </div>
 

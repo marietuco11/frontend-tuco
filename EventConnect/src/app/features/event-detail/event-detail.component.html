@@ -1,0 +1,102 @@
+<app-header></app-header>
+
+@if (loading) {
+  <div class="loading-screen">
+    <div class="spinner"></div>
+    <p>Cargando evento...</p>
+  </div>
+} @else if (error) {
+  <div class="error-screen">
+    <p>No se pudo cargar el evento.</p>
+    <a routerLink="/home">← Volver al inicio</a>
+  </div>
+} @else {
+  <div class="detail-wrapper">
+
+    <div class="hero-image">
+      <img [src]="event.imageUrl ? 'https:' + event.imageUrl : 'assets/images/zaragoza.png'"
+           [alt]="event.title">
+      <div class="hero-overlay">
+        <div class="hero-meta">
+          <span class="category-badge">{{ event.category }}</span>
+          @if (event.isFree) {
+            <span class="free-badge">Gratuito</span>
+          }
+        </div>
+        <h1>{{ event.title }}</h1>
+        <div class="hero-info">
+          @if (event.startDate) {
+            <span>🕐 {{ event.startDate | date:'dd MMM yyyy · HH:mm' }}</span>
+          }
+          <span>📍 {{ event.locationName }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+
+      <div class="main-content">
+        <div class="back-link">
+          <a routerLink="/home">← Volver</a>
+        </div>
+
+        <section class="description-section">
+          <h2>Sobre este evento</h2>
+          <p>{{ event.description | stripHtml }}</p>
+        </section>
+
+        @if (event.address) {
+          <section class="location-section">
+            <h2>Ubicación</h2>
+            <div class="location-card">
+              <div class="location-icon">📍</div>
+              <div>
+                <p class="location-name">{{ event.locationName }}</p>
+                <p class="location-address">{{ event.address }}</p>
+              </div>
+            </div>
+          </section>
+        }
+      </div>
+
+      <aside class="sidebar">
+        <div class="info-card">
+          <h3>Detalles</h3>
+
+          <div class="detail-row">
+            <span class="label">Categoría</span>
+            <span class="value">{{ event.category }}</span>
+          </div>
+
+          @if (event.startDate) {
+            <div class="detail-row">
+              <span class="label">Inicio</span>
+              <span class="value">{{ event.startDate | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          }
+
+          @if (event.endDate) {
+            <div class="detail-row">
+              <span class="label">Fin</span>
+              <span class="value">{{ event.endDate | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          }
+
+          <div class="detail-row">
+            <span class="label">Precio</span>
+            <span class="value" [class.free]="event.isFree">
+              {{ event.isFree ? 'Gratuito' : 'De pago' }}
+            </span>
+          </div>
+
+          @if (event.sourceUrl) {
+            <a [href]="event.sourceUrl" target="_blank" class="source-btn">
+              Ver fuente oficial →
+            </a>
+          }
+        </div>
+      </aside>
+
+    </div>
+  </div>
+}
