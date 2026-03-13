@@ -39,6 +39,10 @@ export class AuthService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl + '/auth';
 
+  private isBrowser(): boolean {
+    return typeof window !== 'undefined';
+  }
+
   login(payload: LoginPayload): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, payload).pipe(
       tap((response) => {
@@ -58,19 +62,23 @@ export class AuthService {
   }
 
   logout(): void {
+    if (!this.isBrowser()) return;
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   }
 
   getToken(): string | null {
+    if (!this.isBrowser()) return null;
     return localStorage.getItem('token');
   }
 
   isLoggedIn(): boolean {
+    if (!this.isBrowser()) return false;
     return !!this.getToken();
   }
 
   getCurrentUser() {
+    if (!this.isBrowser()) return null;
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;
   }
