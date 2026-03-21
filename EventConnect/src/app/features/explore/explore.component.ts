@@ -19,6 +19,8 @@ export class ExploreComponent implements OnInit {
   error = false;
   searchText = '';
   selectedCategory = '';
+  dateFrom = '';
+  dateTo = '';
   page = 1;
   totalPages = 1;
 
@@ -29,9 +31,7 @@ export class ExploreComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadEvents();
-    }
+    if (isPlatformBrowser(this.platformId)) this.loadEvents();
   }
 
   loadEvents() {
@@ -39,6 +39,8 @@ export class ExploreComponent implements OnInit {
     const filters: any = {};
     if (this.selectedCategory) filters.category = this.selectedCategory;
     if (this.searchText) filters.search = this.searchText;
+    if (this.dateFrom) filters.dateFrom = this.dateFrom;
+    if (this.dateTo) filters.dateTo = this.dateTo;
 
     this.eventService.getEvents(this.page, 9, filters).subscribe({
       next: (res) => {
@@ -61,16 +63,9 @@ export class ExploreComponent implements OnInit {
     this.loadEvents();
   }
 
-  onSearch() {
-    this.page = 1;
-    this.loadEvents();
-  }
-
-  prevPage() {
-    if (this.page > 1) { this.page--; this.loadEvents(); }
-  }
-
-  nextPage() {
-    if (this.page < this.totalPages) { this.page++; this.loadEvents(); }
-  }
+  onSearch() { this.page = 1; this.loadEvents(); }
+  onDateChange() { this.page = 1; this.loadEvents(); }
+  clearDates() { this.dateFrom = ''; this.dateTo = ''; this.page = 1; this.loadEvents(); }
+  prevPage() { if (this.page > 1) { this.page--; this.loadEvents(); } }
+  nextPage() { if (this.page < this.totalPages) { this.page++; this.loadEvents(); } }
 }
