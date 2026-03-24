@@ -57,8 +57,8 @@ export class FriendsComponent implements OnInit {
     return users.filter((user: any) =>
       user._id !== this.currentUserId &&
       !this.friends.find(f => f._id === user._id) &&
-      !this.pendingRequests.find(p => p.fromUser._id === user._id) &&
-      !this.sentRequests.find(s => s.toUser._id === user._id)
+      !this.pendingRequests.find(p => p.fromUser._id === user._id) //&&
+      //!this.sentRequests.find(s => s.toUser._id === user._id)
     );
   }
 
@@ -288,6 +288,7 @@ export class FriendsComponent implements OnInit {
           this.allUsers = this.filterAvailableUsers(res.users || []).map(u => ({
             ...u,
             requestSent: this.sentRequests.some(s => s.toUser._id === u._id)
+                         || this.sentRequests.some(s => s.toUser === u._id)
           }));
           this.isSearchingUsers = false;
           this.cdr.detectChanges();
