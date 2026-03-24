@@ -76,4 +76,11 @@ export class FriendsService {
       { withCredentials: true }
     );
   }
+
+  getSentRequests() {
+    return this.http.get<{ sentRequests: any[] }>(
+      `${this.apiUrl}/sent`,
+      { withCredentials: true }
+    );
+  }
 }

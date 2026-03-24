@@ -45,6 +45,7 @@
       </div>
     </div>
 
+    <!-- Solicitudes recibidas -->
     <section class="pending-section" *ngIf="pendingRequests.length > 0">
       <div class="section-header">
         <div>
@@ -89,6 +90,41 @@
       </div>
     </section>
 
+    <!-- Solicitudes enviadas -->
+    <section class="pending-section" *ngIf="sentRequests.length > 0">
+      <div class="section-header">
+        <div>
+          <p class="section-eyebrow">Enviadas</p>
+          <h2>Solicitudes enviadas</h2>
+        </div>
+        <span class="count">{{ sentRequests.length }}</span>
+      </div>
+
+      <div class="pending-list">
+        <div *ngFor="let request of sentRequests" class="pending-card">
+          <div class="pending-info">
+            <img
+              [src]="request.toUser.avatarUrl"
+              [alt]="request.toUser.name"
+              class="avatar"
+            />
+            <div class="pending-details">
+              <p class="name">{{ request.toUser.name }}</p>
+              <p class="username">@{{ request.toUser.username }}</p>
+              <p class="card-subtitle">Solicitud pendiente de respuesta</p>
+            </div>
+          </div>
+
+          <div class="pending-actions">
+            <span class="sent-badge">
+              <span class="material-symbols-rounded">schedule</span>
+              Pendiente
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <div class="friends-grid">
       <section class="panel friends-section">
         <div class="section-header">
@@ -123,7 +159,7 @@
           </div>
 
           <div *ngIf="!isLoading && filteredFriends.length === 0" class="empty-state">
-            <div class="empty-icon"></div>
+            <div class="empty-icon">👥</div>
             <h3>Aún no tienes amigos</h3>
             <p>
               Empieza buscando personas de la comunidad para enviar tu primera
@@ -143,8 +179,15 @@
               </div>
 
               <div class="friend-actions">
-                <button class="icon-btn message-btn" title="Mensaje">
-                  <span class="material-symbols-rounded">chat</span>
+                <button
+                  class="icon-btn message-btn"
+                  title="Mensaje"
+                  (click)="openChat(friend._id)"
+                  [disabled]="openingChatIds.has(friend._id)"
+                >
+                  <span class="material-symbols-rounded">
+                    {{ openingChatIds.has(friend._id) ? 'hourglass_top' : 'chat' }}
+                  </span>
                 </button>
                 <button
                   class="icon-btn delete-btn"
@@ -170,7 +213,7 @@
 
         <div class="panel-body">
           <div *ngIf="suggestedUsers.length === 0" class="empty-state compact">
-            <div class="empty-icon"></div>
+            <div class="empty-icon">✨</div>
             <h3>No hay sugerencias ahora mismo</h3>
             <p>Cuando crezca tu red, aquí aparecerán nuevas recomendaciones.</p>
           </div>
@@ -270,7 +313,13 @@
               </div>
             </div>
 
+            <span *ngIf="user.requestSent" class="sent-badge">
+              <span class="material-symbols-rounded">schedule</span>
+              Pendiente
+            </span>
+
             <button
+              *ngIf="!user.requestSent"
               class="action-btn request-btn"
               (click)="sendFriendRequest(user._id)"
               [disabled]="sendingRequestIds.has(user._id)"

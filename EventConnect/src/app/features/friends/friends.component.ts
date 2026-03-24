@@ -2,8 +2,11 @@ import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
+import { Router } from '@angular/router';
+
 import { FriendsService } from '../../core/services/friends.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ChatService } from '../../core/services/chat.service';
 import { HeaderComponent } from '../../layout/components/header/header';
 
 @Component({
@@ -13,14 +16,16 @@ import { HeaderComponent } from '../../layout/components/header/header';
   styleUrl: './friends.component.scss',
   imports: [CommonModule, FormsModule, HeaderComponent]
 })
-
 export class FriendsComponent implements OnInit {
   private friendsService = inject(FriendsService);
   private authService = inject(AuthService);
+  private chatService = inject(ChatService);
+  private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
   friends: any[] = [];
   pendingRequests: any[] = [];
+  sentRequests: any[] = [];
   suggestedUsers: any[] = [];
   allUsers: any[] = [];
 
@@ -41,12 +46,15 @@ export class FriendsComponent implements OnInit {
   acceptingRequestIds = new Set<string>();
   rejectingRequestIds = new Set<string>();
   removingFriendIds = new Set<string>();
+  cancellingRequestIds = new Set<string>();
+  openingChatIds = new Set<string>();
 
   ngOnInit(): void {
     const user = this.authService.getCurrentUser() as any;
     this.currentUserId = user?._id || '';
     this.loadFriends();
     this.loadPendingRequests();
+    this.loadSentRequests();
     this.loadSuggestedUsers();
   }
 
@@ -86,6 +94,18 @@ export class FriendsComponent implements OnInit {
     });
   }
 
+  loadSentRequests(): void {
+    this.friendsService.getSentRequests().subscribe({
+      next: (res) => {
+        this.sentRequests = res.sentRequests;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al cargar solicitudes enviadas:', err);
+      }
+    });
+  }
+
   loadSuggestedUsers(): void {
     this.friendsService.getSuggestedFriends().subscribe({
       next: (res: any) => {
@@ -115,8 +135,11 @@ export class FriendsComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.allUsers = this.allUsers.filter(u => u._id !== friendId);
           this.suggestedUsers = this.suggestedUsers.filter(u => u._id !== friendId);
+          this.loadSentRequests();
+          this.allUsers = this.allUsers.map(u =>
+            u._id === friendId ? { ...u, requestSent: true } : u
+          );
           this.cdr.detectChanges();
         },
         error: (err) => {
@@ -221,6 +244,34 @@ export class FriendsComponent implements OnInit {
       });
   }
 
+  openChat(friendId: string): void {
+    if (!friendId) return;
+    if (this.openingChatIds.has(friendId)) return;
+
+    this.openingChatIds = new Set(this.openingChatIds).add(friendId);
+    this.cdr.detectChanges();
+
+    this.chatService.createOrGetConversation(friendId)
+      .pipe(
+        finalize(() => {
+          const next = new Set(this.openingChatIds);
+          next.delete(friendId);
+          this.openingChatIds = next;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          const conversationId = res?.conversation?._id;
+          if (!conversationId) return;
+          this.router.navigate(['/chat', conversationId]);
+        },
+        error: (err) => {
+          console.error('Error al abrir chat:', err);
+        }
+      });
+  }
+
   get filteredFriends() {
     return this.friends.filter(friend =>
       friend.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -246,22 +297,6 @@ export class FriendsComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  loadAllUsers(): void {
-    this.isSearchingUsers = true;
-
-    this.friendsService.getAllUsers().subscribe({
-      next: (res: any) => {
-        this.allUsers = this.filterAvailableUsers(res.users || []);
-        this.isSearchingUsers = false;
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        console.error('Error al cargar usuarios:', err);
-        this.isSearchingUsers = false;
-      }
-    });
-  }
-
   onSearchAddFriend(): void {
     clearTimeout(this.searchTimeout);
 
@@ -281,7 +316,11 @@ export class FriendsComponent implements OnInit {
 
       this.friendsService.searchUsers(term).subscribe({
         next: (res: any) => {
-          this.allUsers = this.filterAvailableUsers(res.users || []);
+          this.allUsers = this.filterAvailableUsers(res.users || []).map(u => ({
+            ...u,
+            requestSent: this.sentRequests.some(s => s.toUser._id === u._id)
+              || this.sentRequests.some(s => s.toUser === u._id)
+          }));
           this.isSearchingUsers = false;
           this.cdr.detectChanges();
         },

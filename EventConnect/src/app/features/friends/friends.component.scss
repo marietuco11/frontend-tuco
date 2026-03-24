@@ -774,3 +774,19 @@ button[disabled] {
     border-radius: 22px;
   }
 }
+.sent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(99, 102, 241, 0.08);
+  color: #6366f1;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  .material-symbols-rounded {
+    font-size: 16px;
+  }
+}
