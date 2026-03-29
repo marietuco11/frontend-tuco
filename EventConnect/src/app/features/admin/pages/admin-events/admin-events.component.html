@@ -1,77 +1,90 @@
 <app-admin-topbar title="Gestión de Eventos"></app-admin-topbar>
 
-<section class="events-panel">
-  <div class="panel-header">
-    <h2>Eventos</h2>
+<ng-container *ngIf="events$ | async as data">
+  <section class="events-panel" *ngIf="data.isLoading">
+    <p>Cargando eventos...</p>
+  </section>
 
-    <button type="button" class="create-btn" (click)="createEvent()">
-      + Crear Evento
-    </button>
-  </div>
+  <section class="events-panel" *ngIf="data.errorMessage">
+    <p>{{ data.errorMessage }}</p>
+  </section>
 
-  <div class="filters">
-    <input
-      type="text"
-      [(ngModel)]="search"
-      placeholder="Buscar evento..."
-    >
+  <section class="events-panel" *ngIf="!data.isLoading && !data.errorMessage">
+    <div class="panel-header">
+      <h2>Eventos</h2>
 
-    <select [(ngModel)]="selectedStatus">
-      <option value="Todos">Todos</option>
-      <option value="Activo">Activo</option>
-      <option value="Pendiente">Pendiente</option>
-    </select>
+      <button type="button" class="create-btn" (click)="createEvent()">
+        + Crear Evento
+      </button>
+    </div>
 
-    <button type="button" class="filter-btn">🔎 Filtrar</button>
-  </div>
+    <div class="filters">
+      <input
+        type="text"
+        [(ngModel)]="search"
+        placeholder="Buscar evento..."
+      >
 
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Evento</th>
-          <th>Fecha</th>
-          <th>Inscritos</th>
-          <th>Categoría</th>
-          <th>Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+      <select [(ngModel)]="selectedStatus">
+        <option value="Todos">Todos</option>
+        <option value="Activo">Activo</option>
+        <option value="Pendiente">Pendiente</option>
+      </select>
 
-      <tbody>
-        <tr *ngFor="let event of filteredEvents">
-          <td>{{ event.name }}</td>
-          <td>{{ event.date }}</td>
-          <td>{{ event.enrolled }}</td>
-          <td>{{ event.category }}</td>
-          <td>
-            <span
-              class="status"
-              [class.active]="event.status === 'Activo'"
-              [class.pending]="event.status === 'Pendiente'"
-            >
-              {{ event.status }}
-            </span>
-          </td>
-          <td>
-            <div class="actions">
-              <button type="button" (click)="editEvent(event)" title="Editar">
-                ✏
-              </button>
-              <button type="button" (click)="viewEvent(event)" title="Ver">
-                👁
-              </button>
-              <button type="button" (click)="deleteEvent(event)" title="Eliminar">
-                🗑
-              </button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+      <button type="button" class="filter-btn">🔎 Filtrar</button>
+    </div>
 
-  <p class="pagination">
-    Mostrando 1-8 de 45 eventos &lt; 1 2 3 &gt;
-  </p>
-</section>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Evento</th>
+            <th>Fecha</th>
+            <th>Inscritos</th>
+            <th>Categoría</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let event of getFilteredEvents(data.events)">
+            <td>{{ event.name }}</td>
+            <td>{{ event.date }}</td>
+            <td>{{ event.enrolled }}</td>
+            <td>{{ event.category }}</td>
+            <td>
+              <span
+                class="status"
+                [class.active]="event.status === 'Activo'"
+                [class.pending]="event.status === 'Pendiente'"
+              >
+                {{ event.status }}
+              </span>
+            </td>
+            <td>
+              <div class="actions">
+                <button type="button" (click)="editEvent(event)" title="Editar">
+                  ✏
+                </button>
+                <button type="button" (click)="viewEvent(event)" title="Ver">
+                  👁
+                </button>
+                <button type="button" (click)="deleteEvent(event)" title="Eliminar">
+                  🗑
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="!getFilteredEvents(data.events).length">
+            <td colspan="6">No hay eventos para mostrar.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="pagination">
+      Mostrando {{ getFilteredEvents(data.events).length }} de {{ data.events.length }} eventos
+    </p>
+  </section>
+</ng-container>

@@ -36,6 +36,19 @@ export interface AdminUsersResponse {
   users: AdminUser[];
 }
 
+export interface AdminEvent {
+  id: string;
+  name: string;
+  date: string;
+  status: string;
+  enrolled: number;
+  category: string;
+}
+
+export interface AdminEventsResponse {
+  events: AdminEvent[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -51,6 +64,12 @@ export class AdminService {
 
   getUsers(): Observable<AdminUsersResponse> {
     return this.http.get<AdminUsersResponse>(`${this.apiUrl}/users`, {
+      withCredentials: true
+    });
+  }
+
+  getEvents(): Observable<AdminEventsResponse> {
+    return this.http.get<AdminEventsResponse>(`${this.apiUrl}/events`, {
       withCredentials: true
     });
   }

@@ -1,14 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Observable, of } from 'rxjs';
+import { catchError, map, startWith } from 'rxjs/operators';
 import { AdminTopbarComponent } from '../../components/admin-topbar/admin-topbar.component';
+import { AdminService } from '../../../../core/services/admin.service';
 
 interface AdminEvent {
+  id: string;
   name: string;
   date: string;
   enrolled: string;
   category: string;
   status: 'Activo' | 'Pendiente';
+}
+
+interface AdminEventsData {
+  events: AdminEvent[];
+  isLoading: boolean;
+  errorMessage: string;
 }
 
 @Component({
@@ -19,70 +29,38 @@ interface AdminEvent {
   styleUrl: './admin-events.component.scss'
 })
 export class AdminEventsComponent {
+  private adminService = inject(AdminService);
+
   search = '';
   selectedStatus = 'Todos';
 
-  events: AdminEvent[] = [
-    {
-      name: 'Rock en el Parque Grande',
-      date: '23 Feb 2026',
-      enrolled: '1,234',
-      category: 'Música',
-      status: 'Activo'
-    },
-    {
-      name: 'Exposición de Arte Moderno',
-      date: '25 Feb 2026',
-      enrolled: '892',
-      category: 'Arte',
-      status: 'Activo'
-    },
-    {
-      name: 'Mercadillo del Barrio',
-      date: '28 Feb 2026',
-      enrolled: '567',
-      category: 'Compras',
-      status: 'Activo'
-    },
-    {
-      name: 'Clase de Yoga Amanecida',
-      date: '02 Mar 2026',
-      enrolled: '450',
-      category: 'Bienestar',
-      status: 'Activo'
-    },
-    {
-      name: 'Senderismo por Pinares',
-      date: '08 Mar 2026',
-      enrolled: '340',
-      category: 'Deporte',
-      status: 'Pendiente'
-    },
-    {
-      name: 'Concierto Música Electrónica',
-      date: '15 Mar 2026',
-      enrolled: '2,100',
-      category: 'Música',
-      status: 'Activo'
-    },
-    {
-      name: 'Festival Gastronómico',
-      date: '22 Mar 2026',
-      enrolled: '1,800',
-      category: 'Gastronomía',
-      status: 'Activo'
-    },
-    {
-      name: 'Taller de Fotografía',
-      date: '25 Mar 2026',
-      enrolled: '120',
-      category: 'Educación',
-      status: 'Activo'
-    }
-  ];
+  events$: Observable<AdminEventsData> = this.adminService.getEvents().pipe(
+    map((response) => ({
+      events: response.events.map((event) => ({
+        id: event.id,
+        name: event.name,
+        date: new Date(event.date).toLocaleDateString('es-ES'),
+        enrolled: String(event.enrolled).replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+        category: event.category,
+        status: event.status === 'active' ? ('Activo' as const) : ('Pendiente' as const)
+      })),
+      isLoading: false,
+      errorMessage: ''
+    })),
+    startWith({
+      events: [],
+      isLoading: true,
+      errorMessage: ''
+    }),
+    catchError((error) => of({
+      events: [],
+      isLoading: false,
+      errorMessage: error?.error?.message || 'No se pudo cargar la lista de eventos'
+    }))
+  );
 
-  get filteredEvents(): AdminEvent[] {
-    return this.events.filter((event) => {
+  getFilteredEvents(events: AdminEvent[]): AdminEvent[] {
+    return events.filter((event) => {
       const matchesSearch =
         event.name.toLowerCase().includes(this.search.toLowerCase()) ||
         event.category.toLowerCase().includes(this.search.toLowerCase());
