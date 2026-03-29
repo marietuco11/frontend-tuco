@@ -6,7 +6,6 @@ import { environment } from '../../../environments/environment';
 export interface AdminDashboardStats {
   totalUsers: number;
   activeEvents: number;
-  pendingModeration: number;
   totalRegistrations: number;
 }
 
@@ -18,9 +17,17 @@ export interface AdminDashboardEvent {
   enrolled: number;
 }
 
+export interface AdminActivityData {
+  labels: string[];
+  eventSignups: number[];
+  userRegistrations: number[];
+  reportsFiled: number[];
+}
+
 export interface AdminDashboardResponse {
   stats: AdminDashboardStats;
   upcomingEvents: AdminDashboardEvent[];
+  activityData: AdminActivityData;
 }
 
 export interface AdminUser {
