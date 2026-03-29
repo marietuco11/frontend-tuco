@@ -22,8 +22,9 @@
       <!-- COLUMNA IZQUIERDA -->
       <div class="left-col">
         <div class="event-image">
-          <img [src]="event.imageUrl ? 'https:' + event.imageUrl : 'assets/images/zaragoza.png'"
-               [alt]="event.title">
+          <img [src]="event?.imageUrl ? 'https:' + event.imageUrl : 'assets/images/placeholder.svg'" 
+              [alt]="event?.title"
+              (error)="onImgError($event)">
         </div>
 
         <div class="event-info">
@@ -66,7 +67,8 @@
           } @else {
             <div class="no-map">
               <span>📍</span>
-              <p>{{ event.locationName }}</p>
+              <p class="no-map-title">{{ event.locationName }}</p>
+              <p class="no-map-sub">Ubicación exacta no disponible</p>
             </div>
           }
         </div>
