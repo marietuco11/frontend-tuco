@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Observable, of, switchMap } from 'rxjs';
-import { catchError, map, startWith } from 'rxjs/operators';
+import { Observable, of, BehaviorSubject } from 'rxjs';
+import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { AdminTopbarComponent } from '../../components/admin-topbar/admin-topbar.component';
-import { AdminService, AdminReport } from '../../../../core/services/admin.service';
+import { AdminService, AdminReport, AdminReportDetail } from '../../../../core/services/admin.service';
 
 type ReportTab = 'Contenido' | 'Usuarios' | 'Eventos';
 
@@ -34,12 +34,31 @@ interface AdminReportsSummaryData {
   templateUrl: './admin-reports.component.html',
   styleUrl: './admin-reports.component.scss'
 })
-export class AdminReportsComponent {
+export class AdminReportsComponent implements OnInit {
   private adminService = inject(AdminService);
 
   activeTab: ReportTab = 'Contenido';
   search = '';
   selectedFilter = 'Todos';
+
+  // Para modal de detalles
+  showDetailModal = false;
+  selectedReportId: string | null = null;
+  reportDetail$: Observable<AdminReportDetail | null> = of(null);
+  loadingDetail = false;
+  errorDetail = '';
+
+  // Para acciones
+  resolvingReportId: string | null = null;
+  rejectingReportId: string | null = null;
+  reviewingReportId: string | null = null;
+  resolutionText = '';
+  bandUser = false;
+  rejectReason = '';
+  successMessage = '';
+  errorMessage = '';
+
+  private refreshTrigger$ = new BehaviorSubject<void>(void 0);
 
   summary$: Observable<AdminReportsSummaryData> = this.adminService.getReportsSummary().pipe(
     map((response) => ({
@@ -86,7 +105,8 @@ export class AdminReportsComponent {
     }))
   );
 
-  reports$: Observable<AdminReportsData> = this.adminService.getReports().pipe(
+  reports$: Observable<AdminReportsData> = this.refreshTrigger$.pipe(
+    switchMap(() => this.adminService.getReports()),
     map((response) => ({
       reports: response.reports || [],
       isLoading: false,
@@ -103,6 +123,10 @@ export class AdminReportsComponent {
       errorMessage: error?.error?.message || 'No se pudo cargar la lista de reportes'
     }))
   );
+
+  ngOnInit(): void {
+    this.refreshTrigger$.next();
+  }
 
   get summaryCards(): ReportSummary[] {
     return [];
@@ -133,7 +157,119 @@ export class AdminReportsComponent {
     });
   }
 
-  viewReport(report: AdminReport): void {
-    console.log('Ver reporte', report);
+  viewReportDetail(report: AdminReport): void {
+    this.selectedReportId = report.id;
+    this.showDetailModal = true;
+    this.loadingDetail = true;
+    this.errorDetail = '';
+    this.resolutionText = '';
+    this.bandUser = false;
+    this.rejectReason = '';
+
+    this.reportDetail$ = this.adminService.getReportDetail(report.id).pipe(
+      map((response) => response.report),
+      catchError((error) => {
+        this.errorDetail = error?.error?.message || 'Error al cargar detalles del reporte';
+        this.loadingDetail = false;
+        return of(null);
+      })
+    );
+
+    this.reportDetail$.subscribe(() => {
+      this.loadingDetail = false;
+    });
+  }
+
+  closeDetailModal(): void {
+    this.showDetailModal = false;
+    this.selectedReportId = null;
+    this.reportDetail$ = of(null);
+    this.resolutionText = '';
+    this.bandUser = false;
+    this.rejectReason = '';
+  }
+
+  resolveReport(): void {
+    if (!this.selectedReportId || !this.resolutionText.trim()) {
+      this.errorDetail = 'Ingresa una resolución';
+      return;
+    }
+
+    this.resolvingReportId = this.selectedReportId;
+    this.adminService.resolveReport(this.selectedReportId, this.resolutionText, this.bandUser ? 'ban' : 'none')
+      .subscribe({
+        next: (response) => {
+          this.successMessage = `Reporte resuelto${this.bandUser ? ' y usuario baneado' : ''}`;
+          this.resolvingReportId = null;
+          setTimeout(() => {
+            this.successMessage = '';
+            this.closeDetailModal();
+            this.refreshTrigger$.next();
+          }, 2000);
+        },
+        error: (error) => {
+          this.errorDetail = error?.error?.message || 'Error al resolver reporte';
+          this.resolvingReportId = null;
+        }
+      });
+  }
+
+  rejectReportAction(): void {
+    if (!this.selectedReportId || !this.rejectReason.trim()) {
+      this.errorDetail = 'Ingresa una razón para rechazar';
+      return;
+    }
+
+    this.rejectingReportId = this.selectedReportId;
+    this.adminService.rejectReport(this.selectedReportId, this.rejectReason)
+      .subscribe({
+        next: (response) => {
+          this.successMessage = 'Reporte rechazado';
+          this.rejectingReportId = null;
+          setTimeout(() => {
+            this.successMessage = '';
+            this.closeDetailModal();
+            this.refreshTrigger$.next();
+          }, 2000);
+        },
+        error: (error) => {
+          this.errorDetail = error?.error?.message || 'Error al rechazar reporte';
+          this.rejectingReportId = null;
+        }
+      });
+  }
+
+  markUnderReview(): void {
+    if (!this.selectedReportId) return;
+
+    this.reviewingReportId = this.selectedReportId;
+    this.adminService.markReportUnderReview(this.selectedReportId)
+      .subscribe({
+        next: (response) => {
+          this.successMessage = 'Reporte marcado bajo revisión';
+          this.reviewingReportId = null;
+          setTimeout(() => {
+            this.successMessage = '';
+            this.closeDetailModal();
+            this.refreshTrigger$.next();
+          }, 2000);
+        },
+        error: (error) => {
+          this.errorDetail = error?.error?.message || 'Error al marcar bajo revisión';
+          this.reviewingReportId = null;
+        }
+      });
+  }
+
+  applyFilter(): void {
+    this.successMessage = `Filtro aplicado: ${this.activeTab} - "${this.search || 'Todo'}" - ${this.selectedFilter}`;
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 3000);
+    // Scroll a la tabla de resultados
+    const tableElement = document.querySelector('.table-wrapper');
+    if (tableElement) {
+      tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 }
