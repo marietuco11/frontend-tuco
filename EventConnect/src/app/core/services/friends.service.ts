@@ -19,17 +19,17 @@ export class FriendsService {
   }
 
   acceptFriendRequest(requestId: string) {
-    return this.http.post<{ message: string }>(
-      `${this.apiUrl}/accept`,
-      { requestId },
+    return this.http.put<{ message: string }>(
+      `${this.apiUrl}/${requestId}/accept`,
+      {},
       { withCredentials: true }
     );
   }
 
   rejectFriendRequest(requestId: string) {
-    return this.http.post<{ message: string }>(
-      `${this.apiUrl}/reject`,
-      { requestId },
+    return this.http.put<{ message: string }>(
+      `${this.apiUrl}/${requestId}/reject`,
+      {},
       { withCredentials: true }
     );
   }
@@ -49,9 +49,8 @@ export class FriendsService {
   }
 
   removeFriend(friendId: string) {
-    return this.http.post<{ message: string }>(
-      `${this.apiUrl}/remove`,
-      { friendId },
+    return this.http.delete<{ message: string }>(
+      `${this.apiUrl}/${friendId}`,
       { withCredentials: true }
     );
   }
