@@ -48,4 +48,11 @@ export class ChatService {
       { withCredentials: true }
     );
   }
+
+  getUnreadCountsByFriend() {
+  return this.http.get<{ unreadMessagesByFriend: Record<string, number> }>(
+    `${this.baseUrl}/unread-counts-by-friend`,
+    { withCredentials: true }
+  );
+}
 }

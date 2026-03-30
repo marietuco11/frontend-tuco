@@ -49,6 +49,8 @@ export class FriendsComponent implements OnInit {
   cancellingRequestIds = new Set<string>();
   openingChatIds = new Set<string>();
 
+  unreadMessagesByFriend: Record<string, number> = {};
+
   ngOnInit(): void {
     const user = this.authService.getCurrentUser() as any;
     this.currentUserId = user?._id || '';
@@ -56,6 +58,7 @@ export class FriendsComponent implements OnInit {
     this.loadPendingRequests();
     this.loadSentRequests();
     this.loadSuggestedUsers();
+    this.loadUnreadMessages();
   }
 
   private filterAvailableUsers(users: any[]): any[] {
@@ -114,6 +117,20 @@ export class FriendsComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Error al cargar usuarios sugeridos:', err);
+      }
+    });
+  }
+
+  loadUnreadMessages(): void {
+    this.chatService.getUnreadCountsByFriend().subscribe({
+      next: (res: any) => {
+        this.unreadMessagesByFriend = res?.unreadMessagesByFriend || {};
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Error al cargar mensajes no leídos:', err);
+        this.unreadMessagesByFriend = {};
+        this.cdr.detectChanges();
       }
     });
   }
@@ -264,6 +281,13 @@ export class FriendsComponent implements OnInit {
         next: (res) => {
           const conversationId = res?.conversation?._id;
           if (!conversationId) return;
+
+          this.unreadMessagesByFriend = {
+            ...this.unreadMessagesByFriend,
+            [friendId]: 0
+          };
+          this.cdr.detectChanges();
+
           this.router.navigate(['/chat', conversationId]);
         },
         error: (err) => {
