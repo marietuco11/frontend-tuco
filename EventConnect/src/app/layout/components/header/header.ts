@@ -6,6 +6,7 @@ import { forkJoin } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { FriendsService } from '../../../core/services/friends.service';
 import { ChatService } from '../../../core/services/chat.service';
+import { NotificationsService } from '../../../core/services/notifications.service';
 
 @Component({
   selector: 'app-header',
@@ -18,17 +19,21 @@ export class HeaderComponent implements OnInit {
   private authService = inject(AuthService);
   private friendsService = inject(FriendsService);
   private chatService = inject(ChatService);
+  private notificationsService = inject(NotificationsService);
   private cdr = inject(ChangeDetectorRef);
 
   isLoggedIn$ = this.authService.isLoggedIn$();
-  menuOpen: boolean = false;
-
+  menuOpen = false;
   hasFriendsNotifications = false;
 
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser?.();
-
     if (!currentUser) return;
+
+    this.notificationsService.hasFriendsNotifications$.subscribe(value => {
+      this.hasFriendsNotifications = value;
+      this.cdr.detectChanges();
+    });
 
     this.loadFriendsNotifications();
   }
@@ -47,13 +52,13 @@ export class HeaderComponent implements OnInit {
           0
         );
 
-        this.hasFriendsNotifications = pendingCount > 0 || unreadTotal > 0;
-        this.cdr.detectChanges();
+        this.notificationsService.setHasFriendsNotifications(
+          pendingCount > 0 || unreadTotal > 0
+        );
       },
       error: (err) => {
         console.error('Error al cargar notificaciones del header:', err);
-        this.hasFriendsNotifications = false;
-        this.cdr.detectChanges();
+        this.notificationsService.setHasFriendsNotifications(false);
       }
     });
   }

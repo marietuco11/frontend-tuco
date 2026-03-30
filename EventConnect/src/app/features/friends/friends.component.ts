@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
 import { FriendsService } from '../../core/services/friends.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ChatService } from '../../core/services/chat.service';
 import { HeaderComponent } from '../../layout/components/header/header';
+import { NotificationsService } from '../../core/services/notifications.service';
 
 @Component({
   standalone: true,
@@ -22,6 +24,7 @@ export class FriendsComponent implements OnInit {
   private chatService = inject(ChatService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private notificationsService = inject(NotificationsService);
 
   friends: any[] = [];
   pendingRequests: any[] = [];
@@ -135,6 +138,31 @@ export class FriendsComponent implements OnInit {
     });
   }
 
+
+  refreshHeaderNotifications(): void {
+    forkJoin({
+      pending: this.friendsService.getPendingRequests(),
+      unread: this.chatService.getUnreadCountsByFriend()
+    }).subscribe({
+      next: ({ pending, unread }: any) => {
+        const pendingCount = pending?.pendingRequests?.length || 0;
+
+        const unreadMap = unread?.unreadMessagesByFriend || {};
+        const unreadTotal = Object.values(unreadMap).reduce(
+          (sum: number, count: any) => sum + Number(count || 0),
+          0
+        );
+
+        this.notificationsService.setHasFriendsNotifications(
+          pendingCount > 0 || unreadTotal > 0
+        );
+      },
+      error: (err) => {
+        console.error('Error al refrescar notificaciones del header:', err);
+      }
+    });
+  }
+
   sendFriendRequest(friendId: string): void {
     if (this.sendingRequestIds.has(friendId)) return;
 
@@ -185,6 +213,7 @@ export class FriendsComponent implements OnInit {
           this.loadFriends();
           this.loadPendingRequests();
           this.loadSuggestedUsers();
+          this.refreshHeaderNotifications();
         },
         error: (err) => {
           console.error('Error al aceptar solicitud:', err);
@@ -210,6 +239,7 @@ export class FriendsComponent implements OnInit {
       .subscribe({
         next: () => {
           this.loadPendingRequests();
+          this.refreshHeaderNotifications();
         },
         error: (err) => {
           console.error('Error al rechazar solicitud:', err);
