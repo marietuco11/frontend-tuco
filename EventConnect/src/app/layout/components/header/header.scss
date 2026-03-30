@@ -217,3 +217,20 @@ nav a {
     font-weight: 600;
   }
 }
+
+.nav-link-with-dot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.nav-notification-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e53935;
+  display: inline-block;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.95);
+  flex-shrink: 0;
+}

@@ -14,7 +14,10 @@
     <a routerLink="/home">Buscar</a>
     <a routerLink="/explore">Explorar</a>
     <a routerLink="/map">Mapa</a>
-    <a routerLink="/friends">Amigos</a>
+    <a routerLink="/friends" class="nav-link-with-dot">
+      <span>Amigos</span>
+      <span *ngIf="hasFriendsNotifications" class="nav-notification-dot"></span>
+    </a>
     <a routerLink="/stats">Estadísticas</a>
   </nav>
 
