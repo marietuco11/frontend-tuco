@@ -180,13 +180,20 @@
 
               <div class="friend-actions">
                 <button
-                  class="icon-btn message-btn"
+                  class="icon-btn message-btn has-badge"
                   title="Mensaje"
                   (click)="openChat(friend._id)"
                   [disabled]="openingChatIds.has(friend._id)"
                 >
                   <span class="material-symbols-rounded">
                     {{ openingChatIds.has(friend._id) ? 'hourglass_top' : 'chat' }}
+                  </span>
+
+                  <span
+                    *ngIf="unreadMessagesByFriend[friend._id] > 0"
+                    class="unread-badge"
+                  >
+                    {{ unreadMessagesByFriend[friend._id] > 99 ? '99+' : unreadMessagesByFriend[friend._id] }}
                   </span>
                 </button>
                 <button
@@ -208,7 +215,10 @@
             <p class="section-eyebrow">Descubre</p>
             <h2>Quizás conozcas a</h2>
           </div>
-          <button class="organize-btn">Organizar quedada</button>
+          <button class="organize-btn has-dot" (click)="goToMeetups()">
+            <span>Organizar quedada</span>
+            <span *ngIf="hasPendingMeetupInvitations" class="nav-notification-dot"></span>
+          </button>
         </div>
 
         <div class="panel-body">

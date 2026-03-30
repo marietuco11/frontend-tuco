@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
 import { FriendsService } from '../../core/services/friends.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ChatService } from '../../core/services/chat.service';
 import { HeaderComponent } from '../../layout/components/header/header';
+import { NotificationsService } from '../../core/services/notifications.service';
+import { MeetupService } from '../../core/services/meetup.service';
 
 @Component({
   standalone: true,
@@ -22,6 +25,10 @@ export class FriendsComponent implements OnInit {
   private chatService = inject(ChatService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private notificationsService = inject(NotificationsService);
+  private meetupService = inject(MeetupService);
+
+  hasPendingMeetupInvitations = false;
 
   friends: any[] = [];
   pendingRequests: any[] = [];
@@ -49,6 +56,8 @@ export class FriendsComponent implements OnInit {
   cancellingRequestIds = new Set<string>();
   openingChatIds = new Set<string>();
 
+  unreadMessagesByFriend: Record<string, number> = {};
+
   ngOnInit(): void {
     const user = this.authService.getCurrentUser() as any;
     this.currentUserId = user?._id || '';
@@ -56,7 +65,13 @@ export class FriendsComponent implements OnInit {
     this.loadPendingRequests();
     this.loadSentRequests();
     this.loadSuggestedUsers();
-  }
+    this.loadUnreadMessages();
+    this.notificationsService.meetupInvitations$.subscribe(data => {
+      this.hasPendingMeetupInvitations = data?.hasPending || false;
+      this.cdr.detectChanges();
+    });
+
+  this.notificationsService.refreshAllFriendsNotifications();  }
 
   private filterAvailableUsers(users: any[]): any[] {
     return users.filter((user: any) =>
@@ -118,6 +133,25 @@ export class FriendsComponent implements OnInit {
     });
   }
 
+  loadUnreadMessages(): void {
+    this.chatService.getUnreadCountsByFriend().subscribe({
+      next: (res: any) => {
+        this.unreadMessagesByFriend = res?.unreadMessagesByFriend || {};
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Error al cargar mensajes no leídos:', err);
+        this.unreadMessagesByFriend = {};
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+
+  refreshHeaderNotifications(): void {
+    this.notificationsService.refreshAllFriendsNotifications();
+  }
+
   sendFriendRequest(friendId: string): void {
     if (this.sendingRequestIds.has(friendId)) return;
 
@@ -168,6 +202,7 @@ export class FriendsComponent implements OnInit {
           this.loadFriends();
           this.loadPendingRequests();
           this.loadSuggestedUsers();
+          this.refreshHeaderNotifications();
         },
         error: (err) => {
           console.error('Error al aceptar solicitud:', err);
@@ -193,6 +228,7 @@ export class FriendsComponent implements OnInit {
       .subscribe({
         next: () => {
           this.loadPendingRequests();
+          this.refreshHeaderNotifications();
         },
         error: (err) => {
           console.error('Error al rechazar solicitud:', err);
@@ -264,6 +300,13 @@ export class FriendsComponent implements OnInit {
         next: (res) => {
           const conversationId = res?.conversation?._id;
           if (!conversationId) return;
+
+          this.unreadMessagesByFriend = {
+            ...this.unreadMessagesByFriend,
+            [friendId]: 0
+          };
+          this.cdr.detectChanges();
+
           this.router.navigate(['/chat', conversationId]);
         },
         error: (err) => {
@@ -335,5 +378,9 @@ export class FriendsComponent implements OnInit {
 
   get filteredAddFriendUsers() {
     return this.allUsers;
+  }
+
+  goToMeetups(): void {
+    this.router.navigate(['/meetups']);
   }
 }

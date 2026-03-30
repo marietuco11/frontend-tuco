@@ -12,10 +12,13 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { finalize, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { forkJoin } from 'rxjs';
 
 import { ChatService } from '../../core/services/chat.service';
 import { AuthService } from '../../core/services/auth.service';
+import { FriendsService } from '../../core/services/friends.service';
 import { HeaderComponent } from '../../layout/components/header/header';
+import { NotificationsService } from '../../core/services/notifications.service';
 
 @Component({
   standalone: true,
@@ -28,8 +31,10 @@ export class ChatDetailComponent implements OnInit, AfterViewChecked {
   private route = inject(ActivatedRoute);
   private chatService = inject(ChatService);
   private authService = inject(AuthService);
+  private friendsService = inject(FriendsService);
   private cdr = inject(ChangeDetectorRef);
   private location = inject(Location);
+  private notificationsService = inject(NotificationsService);
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef<HTMLDivElement>;
 
@@ -109,6 +114,30 @@ export class ChatDetailComponent implements OnInit, AfterViewChecked {
       });
   }
 
+  refreshHeaderNotifications(): void {
+    forkJoin({
+      pending: this.friendsService.getPendingRequests(),
+      unread: this.chatService.getUnreadCountsByFriend()
+    }).subscribe({
+      next: ({ pending, unread }: any) => {
+        const pendingCount = pending?.pendingRequests?.length || 0;
+
+        const unreadMap = unread?.unreadMessagesByFriend || {};
+        const unreadTotal = Object.values(unreadMap).reduce(
+          (sum: number, count: any) => sum + Number(count || 0),
+          0
+        );
+
+        this.notificationsService.setHasFriendsNotifications(
+          pendingCount > 0 || unreadTotal > 0
+        );
+      },
+      error: (err) => {
+        console.error('Error al refrescar notificaciones del header:', err);
+      }
+    });
+  }
+
   sendMessage(): void {
     const content = this.newMessage.trim();
     if (!content) return;
@@ -148,7 +177,12 @@ export class ChatDetailComponent implements OnInit, AfterViewChecked {
 
   markAsRead(): void {
     this.chatService.markConversationAsRead(this.conversationId).subscribe({
-      error: (err) => console.error('Error al marcar como leído:', err)
+      next: () => {
+        this.refreshHeaderNotifications();
+      },
+      error: (err) => {
+        console.error('Error al marcar mensajes como leídos:', err);
+      }
     });
   }
 
