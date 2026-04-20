@@ -51,6 +51,19 @@ export class ExploreComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) this.loadEvents();
   }
 
+  defaultImage = 'assets/images/placeholder.svg';
+
+  getImage(event: any): string {
+    if (!event?.imageUrl) {
+      return this.defaultImage;
+    }
+    return event?.imageUrl;
+  }
+
+  onImageError(e: any) {
+    e.target.src = this.defaultImage;
+  }
+
   loadEvents() {
     this.loading = true;
     const filters: any = {};

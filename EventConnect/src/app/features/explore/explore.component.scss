@@ -21,7 +21,8 @@
 .search-box {
   display: flex;
   gap: 0;
-  max-width: 500px;
+  max-width: 400px;
+  flex: 1;
 
   input {
     flex: 1;

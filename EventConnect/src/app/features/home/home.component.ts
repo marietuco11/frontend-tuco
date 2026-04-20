@@ -110,7 +110,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-      this.eventService.getEvents(1, 12).subscribe({
+      this.eventService.getEvents(1, 15).subscribe({
         next: (res) => {
           this.events = res.data;
           this.loading = false;

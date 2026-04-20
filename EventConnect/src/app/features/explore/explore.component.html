@@ -45,7 +45,10 @@
       @for (event of events; track event._id) {
         <a class="event-card" [routerLink]="['/events', event._id]">
           <div class="card-image">
-            <img [src]="event.imageUrl ? 'https:' + event.imageUrl : 'assets/images/zaragoza.png'" [alt]="event.title">
+            <img 
+              [src]="getImage(event)" 
+              (error)="onImageError($event)" 
+              [alt]="event.title">
             <span class="card-category">{{ event.category }}</span>
             @if (event.isFree) { <span class="card-free">Gratis</span> }
           </div>
