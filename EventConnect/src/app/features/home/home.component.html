@@ -30,6 +30,59 @@
   }
 </section>
 
+<section class="ai-section">
+
+  <div class="ai-box">
+
+    <div class="ai-header">
+      <span>✨</span>
+      <h3>Recomendador inteligente</h3>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="ai-filters">
+
+      <select [(ngModel)]="selectedCategory">
+        <option value="all">Todas las categorías</option>
+        <option value="cultural">Cultural</option>
+        <option value="gastronomia">Gastronomía</option>
+        <option value="musica">Música</option>
+      </select>
+
+      <select [(ngModel)]="selectedRange">
+        <option value="today">Hoy</option>
+        <option value="week">Esta semana</option>
+      </select>
+
+    </div>
+
+    <!-- BOTÓN -->
+    <button class="ai-main-btn" (click)="generateSummary()">
+      Generar recomendaciones
+    </button>
+
+    <!-- ESTADOS -->
+    @if (aiLoading) {
+      <div class="ai-loading">
+        <div class="ai-spinner"></div>
+        <span>Analizando eventos...</span>
+      </div>
+    }
+
+    @if (aiError) {
+      <p class="ai-error">Error generando resumen</p>
+    }
+
+    @if (aiSummary && !aiLoading) {
+      <div class="ai-result">
+        {{ aiSummary }}
+      </div>
+    }
+
+  </div>
+
+</section>
+
 <section class="advisor">
   <div class="advisor-card">
 
