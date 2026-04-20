@@ -7,11 +7,11 @@ import { Observable } from 'rxjs';
 })
 export class EventService {
 
-  private apiUrl = 'http://localhost:3001/api/events';
+  private apiUrl = 'http://localhost:3000/api/events';
 
   constructor(private http: HttpClient) {}
 
-  getEvents(page = 1, limit = 12, filters: any = {}): Observable<any> {
+  getEvents(page = 1, limit = 15, filters: any = {}): Observable<any> {
     let params = new HttpParams()
       .set('page', page)
       .set('limit', limit);
@@ -30,11 +30,11 @@ export class EventService {
   }
 
   getGlobalStats(): Observable<any> {
-    return this.http.get('http://localhost:3001/api/stats/global');
+    return this.http.get('http://localhost:3000/api/stats/global');
   }
 
   getPersonalStats(): Observable<any> {
-    return this.http.get('http://localhost:3001/api/stats/personal', { withCredentials: true });
+    return this.http.get('http://localhost:3000/api/stats/personal', { withCredentials: true });
   }
 
   toggleAttend(eventId: string): Observable<any> {

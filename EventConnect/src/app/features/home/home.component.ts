@@ -6,11 +6,12 @@ import { HeaderComponent } from '../../layout/components/header/header';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, EventCardComponent, HeaderComponent, RouterLink, HttpClientModule],
+  imports: [CommonModule, EventCardComponent, HeaderComponent, HttpClientModule, FormsModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -18,6 +19,63 @@ export class HomeComponent implements OnInit {
   events: any[] = [];
   loading = true;
   error = false;
+  aiSummary: string | null = null;
+  aiLoading = false;
+  aiError = false;
+  selectedCategory: string = 'all';
+  selectedRange: string = 'today';
+
+  getFilteredEvents() {
+    let filtered = [...this.events];
+
+    if (this.selectedCategory !== 'all') {
+      filtered = filtered.filter(e => e.category === this.selectedCategory);
+    }
+
+    if (this.selectedRange === 'today') {
+      const today = new Date().toDateString();
+      filtered = filtered.filter(e =>
+        new Date(e.startDate).toDateString() === today
+      );
+    }
+
+    if (this.selectedRange === 'week') {
+      const now = new Date();
+      const weekLater = new Date();
+      weekLater.setDate(now.getDate() + 7);
+
+      filtered = filtered.filter(e => {
+        const d = new Date(e.startDate);
+        return d >= now && d <= weekLater;
+      });
+    }
+
+    return filtered;
+  }
+
+ generateSummary() {
+  this.aiLoading = true;
+  this.aiError = false;
+  this.aiSummary = null;
+
+  const filtered = this.getFilteredEvents();
+
+    this.http.post<any>('http://localhost:3000/api/ai/summary', {
+      events: filtered
+    }).subscribe({
+      next: (res: any) => {
+        this.aiSummary = res.summary || 'Sin resumen';
+        this.aiLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.aiError = true;
+        this.aiLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
 
   // Chatbot
   companions = [
@@ -52,7 +110,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-      this.eventService.getEvents(1, 12).subscribe({
+      this.eventService.getEvents(1, 15).subscribe({
         next: (res) => {
           this.events = res.data;
           this.loading = false;

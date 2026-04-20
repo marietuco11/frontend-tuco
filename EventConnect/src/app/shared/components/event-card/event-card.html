@@ -1,19 +1,16 @@
-<div class="card">
+<a class="card" [routerLink]="['/events', event?._id]">
 
-  <img [src]="event?.imageUrl || 'assets/placeholder.jpg'" [alt]="event?.title">
-
-  <div class="info">
-
-    <h3>{{ event?.title }}</h3>
-
-    <p class="date">{{ event?.startDate | date:'dd/MM/yyyy HH:mm' }}</p>
-
-    <p class="location">{{ event?.locationName }}</p>
-
-    <p class="description">{{ event?.description | stripHtml }}...</p>
-
-    <a [routerLink]="['/events', event?._id]">Ver más →</a>
-
+  <div class="image-wrapper">
+    <img [src]="getImage(event)"
+         (error)="onImageError($event)"
+         [alt]="event?.title">
   </div>
 
-</div>
+  <div class="info">
+    <h3>{{ event?.title }}</h3>
+    <p class="date">{{ event?.startDate | date:'dd/MM/yyyy HH:mm' }}</p>
+    <p class="location">{{ event?.locationName }}</p>
+    <p class="description">{{ event?.description | stripHtml }}...</p>
+  </div>
+
+</a>
