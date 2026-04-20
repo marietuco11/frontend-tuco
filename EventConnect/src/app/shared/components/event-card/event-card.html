@@ -1,6 +1,8 @@
 <div class="card">
 
-  <img [src]="event?.imageUrl || 'assets/placeholder.jpg'" [alt]="event?.title">
+  <img [src]="getImage(event)"
+  (error)="onImageError($event)"
+  class="event-image" [alt]="event?.title">
 
   <div class="info">
 

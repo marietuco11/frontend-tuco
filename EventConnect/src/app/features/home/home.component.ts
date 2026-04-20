@@ -10,7 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, EventCardComponent, HeaderComponent, RouterLink, HttpClientModule],
+  imports: [CommonModule, EventCardComponent, HeaderComponent, HttpClientModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })

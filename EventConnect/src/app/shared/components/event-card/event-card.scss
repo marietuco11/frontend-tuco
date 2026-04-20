@@ -62,3 +62,10 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+.event-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;   // 🔥 clave
+  border-radius: 12px;
+}
