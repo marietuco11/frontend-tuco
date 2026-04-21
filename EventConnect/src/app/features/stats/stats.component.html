@@ -1,7 +1,6 @@
 <app-header></app-header>
 
 <div class="stats-wrapper">
-
   <div class="tab-switcher">
     <button [class.active]="activeTab === 'personal'" (click)="setTab('personal')">
       Tus estadísticas
@@ -12,8 +11,7 @@
   </div>
 
   @if (activeTab === 'global') {
-    <div class="global-stats">
-
+    <div class="global-grid">
       <div class="chart-card">
         <h3>Eventos por categoría</h3>
         <div class="bar-chart">
@@ -43,13 +41,11 @@
       </div>
 
       <div class="chart-card top-card">
-        <h3>🏆 Top categorías</h3>
+        <h3>Top categorías</h3>
         <div class="top-list">
           @for (item of categoryStats.slice(0,3); track item.label; let i = $index) {
             <div class="top-item">
-              <span class="top-rank" [class.gold]="i===0" [class.silver]="i===1" [class.bronze]="i===2">
-                {{ i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉' }}
-              </span>
+              <span class="top-rank">{{ i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉' }}</span>
               <span class="top-label">{{ item.label }}</span>
               <div class="top-bar">
                 <div class="top-bar-fill" [style.width.%]="(item.value / maxCategory) * 100" [style.background]="item.color"></div>
@@ -59,48 +55,70 @@
           }
         </div>
       </div>
-
     </div>
   }
 
   @if (activeTab === 'personal') {
-    <div class="personal-stats">
+    <div class="personal-grid">
 
-      <div class="stat-card highlight">
-        <span class="stat-icon">👥</span>
-        <p class="stat-label">Amigos conocidos</p>
-        <p class="stat-value">{{ personalStats.friendsMet }}</p>
-      </div>
-
-      <div class="stat-card highlight">
-        <span class="stat-icon">🎯</span>
-        <p class="stat-label">Tipo de evento más frecuente</p>
-        <p class="stat-value">{{ personalStats.topCategory }}</p>
-      </div>
-
-      <div class="stat-card highlight">
-        <span class="stat-icon">📅</span>
-        <p class="stat-label">Día más activo</p>
-        <p class="stat-value">{{ personalStats.busiestDay }}</p>
-      </div>
-
-      <div class="stat-card highlight">
+      <div class="stat-card">
         <span class="stat-icon">🎟️</span>
         <p class="stat-label">Eventos asistidos</p>
         <p class="stat-value">{{ personalStats.eventsAttended }}</p>
       </div>
 
-      <div class="stat-card wide empty-chart">
-        <h3>Eventos por semana</h3>
-        <p class="coming-soon">Disponible cuando registres asistencia a eventos</p>
+      <div class="stat-card">
+        <span class="stat-icon">👥</span>
+        <p class="stat-label">Amigos conocidos</p>
+        <p class="stat-value">{{ personalStats.friendsMet }}</p>
       </div>
 
-      <div class="stat-card wide empty-chart">
-        <h3>Tipos de evento asistidos</h3>
-        <p class="coming-soon">Disponible cuando registres asistencia a eventos</p>
+      <div class="stat-card">
+        <span class="stat-icon">🏷️</span>
+        <p class="stat-label">Categoría favorita</p>
+        <p class="stat-value text-val">{{ personalStats.topCategory ?? '—' }}</p>
       </div>
+
+      <div class="stat-card">
+        <span class="stat-icon">📅</span>
+        <p class="stat-label">Día más activo</p>
+        <p class="stat-value text-val">{{ personalStats.busiestDay ?? '—' }}</p>
+      </div>
+
+      @if (personalStats.categoryStats?.length) {
+        <div class="chart-card wide">
+          <h3>Tus eventos por categoría</h3>
+          <div class="bar-chart">
+            @for (item of personalStats.categoryStats; track item.label) {
+              <div class="bar-item">
+                <div class="bar-fill" [style.height.%]="(item.value / maxPersonalCategory) * 100" [style.background]="item.color">
+                  <span class="bar-value">{{ item.value }}</span>
+                </div>
+                <span class="bar-label">{{ item.label }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="chart-card wide">
+          <h3>Tus eventos por día</h3>
+          <div class="bar-chart">
+            @for (item of personalStats.dayStats; track item.day) {
+              <div class="bar-item">
+                <div class="bar-fill" [style.height.%]="(item.count / maxPersonalDay) * 100" style="background:#6366f1">
+                  <span class="bar-value">{{ item.count }}</span>
+                </div>
+                <span class="bar-label">{{ item.day }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="chart-card wide empty-card">
+          <p>Asiste a eventos para ver tus gráficas aquí</p>
+        </div>
+      }
 
     </div>
   }
-
 </div>

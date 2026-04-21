@@ -1,5 +1,5 @@
 .stats-wrapper {
-  padding: 40px 80px 80px;
+  padding: 120px 80px 80px;
   background: #f5f6fa;
   min-height: calc(100vh - 70px);
 }
@@ -27,22 +27,39 @@
     &.active {
       background: white;
       color: #1a1a2e;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
   }
 }
 
-.global-stats {
+// ── Global ──────────────────────────────────────────────
+.global-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+
+  .top-card {
+    grid-column: span 2;
+  }
 }
 
+// ── Personal ─────────────────────────────────────────────
+.personal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+
+  .wide {
+    grid-column: span 4;
+  }
+}
+
+// ── Tarjetas ─────────────────────────────────────────────
 .chart-card {
   background: white;
   border-radius: 20px;
   padding: 28px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
 
   h3 {
     font-size: 16px;
@@ -52,12 +69,73 @@
   }
 }
 
+.stat-card {
+  background: white;
+  border-radius: 20px;
+  padding: 24px 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.empty-card {
+  background: white;
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  grid-column: span 4;
+
+  p {
+    font-size: 13px;
+    color: #bbb;
+    font-style: italic;
+    margin: 0;
+  }
+}
+
+// ── Métricas de stat-card ─────────────────────────────────
+.stat-icon {
+  font-size: 28px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #888;
+  font-weight: 500;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stat-value {
+  font-size: 36px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0;
+  line-height: 1;
+
+  &.text-val {
+    font-size: 18px;
+    font-weight: 700;
+  }
+}
+
+// ── Gráficas de barras ────────────────────────────────────
 .bar-chart {
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
   height: 200px;
-  gap: 8px;
+  gap: 6px;
+  padding-bottom: 0; // quita el padding-bottom si lo tenías
+  margin-bottom: 36px; // espacio para las etiquetas de abajo
 }
 
 .bar-item {
@@ -67,7 +145,8 @@
   justify-content: flex-end;
   flex: 1;
   height: 100%;
-  gap: 8px;
+  gap: 0;
+  position: relative; // necesario para posicionar la etiqueta
 }
 
 .bar-fill {
@@ -81,19 +160,26 @@
   min-height: 4px;
 }
 
+.bar-label {
+  position: absolute;
+  bottom: -32px; // fuera del área de barras, siempre a la misma distancia
+  font-size: 10px;
+  color: #888;
+  font-weight: 500;
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .bar-value {
   font-size: 11px;
   font-weight: 700;
   color: white;
 }
 
-.bar-label {
-  font-size: 11px;
-  color: #888;
-  font-weight: 500;
-  text-align: center;
-}
-
+// ── Top lista ─────────────────────────────────────────────
 .top-list {
   display: flex;
   flex-direction: column;
@@ -106,7 +192,9 @@
   gap: 12px;
 }
 
-.top-rank { font-size: 20px; }
+.top-rank {
+  font-size: 20px;
+}
 
 .top-label {
   font-size: 14px;
@@ -135,68 +223,4 @@
   color: #555;
   min-width: 35px;
   text-align: right;
-}
-
-.personal-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-
-.stat-card {
-  background: white;
-  border-radius: 20px;
-  padding: 28px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-
-  &.highlight {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 8px;
-  }
-
-  &.wide {
-    grid-column: span 1;
-  }
-
-  h3 {
-    font-size: 15px;
-    font-weight: 700;
-    color: #1a1a2e;
-    margin-bottom: 12px;
-  }
-}
-
-.stat-icon { font-size: 32px; }
-
-.stat-label {
-  font-size: 13px;
-  color: #888;
-  font-weight: 500;
-  margin: 0;
-}
-
-.stat-value {
-  font-size: 36px;
-  font-weight: 800;
-  color: #1a1a2e;
-  margin: 0;
-}
-
-.empty-chart {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 160px;
-}
-
-.coming-soon {
-  font-size: 13px;
-  color: #bbb;
-  text-align: center;
-  font-style: italic;
-  margin: 0;
 }

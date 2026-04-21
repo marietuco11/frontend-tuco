@@ -21,11 +21,13 @@ export class StatsComponent implements OnInit {
   dayStats: any[] = [];
 
   // Inicializamos las personales a cero
-  personalStats = {
+  personalStats: any = {
     friendsMet: 0,
-    topCategory: 'Cargando...',
-    busiestDay: 'Cargando...',
     eventsAttended: 0,
+    topCategory: null,
+    busiestDay: null,
+    categoryStats: [],
+    dayStats: [],
   };
 
   get maxCategory() { 
@@ -75,5 +77,17 @@ export class StatsComponent implements OnInit {
   setTab(tab: 'personal' | 'global') {
     this.activeTab = tab;
     this.cdr.detectChanges();
+  }
+
+  get maxPersonalCategory() {
+    return this.personalStats.categoryStats?.length
+      ? Math.max(...this.personalStats.categoryStats.map((c: any) => c.value))
+      : 1;
+  }
+
+  get maxPersonalDay() {
+    return this.personalStats.dayStats?.length
+      ? Math.max(...this.personalStats.dayStats.map((d: any) => d.count))
+      : 1;
   }
 }
