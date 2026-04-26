@@ -1,5 +1,5 @@
 .stats-wrapper {
-  padding: 40px 80px 80px;
+  padding: 120px 80px 80px;
   background: #f5f6fa;
   min-height: calc(100vh - 70px);
 }
@@ -27,29 +27,41 @@
     &.active {
       background: white;
       color: #1a1a2e;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
   }
 }
 
-// ─── Global Stats Grid ──────────────────────────────────────────────────────
+// ─── Global Stats Grid ─────────────────────────────────────
 
 .global-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
 }
 
 .col-span-2 { grid-column: span 2; }
 .col-span-3 { grid-column: span 3; }
 
-// ─── Chart Card ─────────────────────────────────────────────────────────────
+// ─── Personal ─────────────────────────────────────────────
+
+.personal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+
+  .wide {
+    grid-column: span 4;
+  }
+}
+
+// ─── Chart Card ───────────────────────────────────────────
 
 .chart-card {
   background: white;
   border-radius: 20px;
   padding: 28px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
 
   h3 {
     font-size: 16px;
@@ -59,11 +71,11 @@
   }
 }
 
-// ─── Bar Chart ──────────────────────────────────────────────────────────────
+// ─── Bar Chart ────────────────────────────────────────────
 
 .bar-chart {
   display: flex;
-  align-items: flex-end;   // barras anclan al fondo
+  align-items: flex-end;
   justify-content: space-around;
   height: 220px;
   gap: 8px;
@@ -77,23 +89,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;  // empuja todo hacia la base
+  justify-content: flex-end;
   flex: 1;
   height: 100%;
   gap: 6px;
-
-  // El valor flota encima de la barra gracias al orden DOM:
-  // bar-value → bar-fill → bar-label
-  // Con justify-content: flex-end, bar-label queda al final (abajo),
-  // bar-fill crece hacia arriba, y bar-value queda justo sobre la barra.
 }
 
 .bar-value {
   font-size: 11px;
   font-weight: 700;
   color: #444;
-  line-height: 1;
-  // No va dentro del bar-fill — va encima de él en el flujo flex
 }
 
 .bar-fill {
@@ -108,7 +113,7 @@
 }
 
 .bar-label {
-  font-size: 11px;
+  font-size: 10px;
   color: #888;
   font-weight: 500;
   text-align: center;
@@ -118,7 +123,7 @@
   max-width: 100%;
 }
 
-// ─── Top List ────────────────────────────────────────────────────────────────
+// ─── Top List ─────────────────────────────────────────────
 
 .top-list {
   display: flex;
@@ -176,13 +181,7 @@
   transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-// ─── Personal Stats ──────────────────────────────────────────────────────────
-
-.personal-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-}
+// ─── Personal Stats ───────────────────────────────────────
 
 .stat-card {
   background: white;
@@ -197,20 +196,11 @@
     text-align: center;
     gap: 8px;
   }
-
-  &.wide {
-    grid-column: span 2;
-  }
-
-  h3 {
-    font-size: 15px;
-    font-weight: 700;
-    color: #1a1a2e;
-    margin-bottom: 12px;
-  }
 }
 
-.stat-icon { font-size: 32px; }
+.stat-icon {
+  font-size: 32px;
+}
 
 .stat-label {
   font-size: 13px;
@@ -230,18 +220,17 @@
   }
 }
 
-.empty-chart {
+.empty-card {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 160px;
-}
 
-.coming-soon {
-  font-size: 13px;
-  color: #bbb;
-  text-align: center;
-  font-style: italic;
-  margin: 0;
+  p {
+    font-size: 13px;
+    color: #bbb;
+    text-align: center;
+    font-style: italic;
+    margin: 0;
+  }
 }
