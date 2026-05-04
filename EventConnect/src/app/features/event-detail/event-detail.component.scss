@@ -584,3 +584,27 @@ $t:         0.2s ease;
 
   svg { flex-shrink: 0; }
 }
+
+
+.gmaps-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 14px;
+  background: $white;
+  color: $text-mid;
+  border: 1.5px solid $border;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all $t;
+
+  &:hover {
+    border-color: $blue;
+    color: $blue;
+    background: $blue-soft;
+  }
+}
