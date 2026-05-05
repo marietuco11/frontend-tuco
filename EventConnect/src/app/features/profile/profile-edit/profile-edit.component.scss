@@ -222,62 +222,80 @@
   box-shadow: 0 0 0 3px rgba(26, 86, 196, 0.1);
 }
 
+.favorites-hint {
+  font-size: 13px;
+  color: #9ca3af;
+  font-weight: 500;
+  margin: -8px 0 20px;
+}
+
 .favorites-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 10px;
 }
 
 .favorite-item {
-  position: relative;
-  width: 80px;
-  height: 80px;
-  border: 2px solid #000000;
-  background: #ffffff;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1.5px solid #e5e7eb;
+  background: #ffffff;
+  border-radius: 100px;
   cursor: pointer;
-  border-radius: 12px;
   transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  position: relative;
 }
 
 .favorite-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(26, 86, 196, 0.2);
   border-color: #1a56c4;
+  color: #1a56c4;
+  background: #f0f5ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26, 86, 196, 0.12);
 }
 
 .favorite-item.selected {
-  background: #f0f5ff;
+  background: #1a56c4;
+  border-color: #1a56c4;
+  color: white;
+  box-shadow: 0 4px 12px rgba(26, 86, 196, 0.3);
+
+  .favorite-svg svg { stroke: white; }
+  .favorite-label { color: white; }
+  .favorite-check { opacity: 1; }
 }
 
-.favorite-emoji {
-  font-size: 2rem;
-}
-
-.favorite-action {
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  font-weight: 700;
-  font-size: 1rem;
+.favorite-svg {
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: white;
+  flex-shrink: 0;
+
+  svg { display: block; stroke: #4b5563; transition: stroke 0.2s ease; }
 }
 
-.favorite-action.add {
-  background: #22c55e;
+.favorite-item:hover .favorite-svg svg {
+  stroke: #1a56c4;
 }
 
-.favorite-action.remove {
-  background: #ef4444;
+.favorite-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.favorite-check {
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  margin-left: 2px;
+
+  svg { display: block; stroke: white; }
 }
 
 .messages {
