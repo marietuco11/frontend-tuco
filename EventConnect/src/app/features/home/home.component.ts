@@ -172,16 +172,20 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private loadForYou() {
     this.authService.currentUser$.subscribe((profile: any) => {
-      if (!profile || (profile.attendedEvents ?? []).length === 0) {
+      // Mostrar sección si tiene eventos asistidos O intereses declarados
+      const hasAttended  = (profile?.attendedEvents ?? []).length > 0;
+      const hasInterests = (profile?.interests ?? []).length > 0;
+ 
+      if (!profile || (!hasAttended && !hasInterests)) {
         this.showPersonalized = false;
         this.cdr.detectChanges();
         return;
       }
-
-      this.loadingForYou   = true;
+ 
+      this.loadingForYou    = true;
       this.showPersonalized = true;
       this.cdr.detectChanges();
-
+ 
       this.authService.getRecommendations(10)
         .pipe(catchError(() => of({ data: [] })))
         .subscribe((res: any) => {
